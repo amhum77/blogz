@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/show_individual_blog?blog_id={0}" method = 'get'>
+<h1>{{blog_title}}</h1>
+
+<p>{{blog_entry}}</p>
+
+</form>
+
+{% endblock %}
+
+
+
+

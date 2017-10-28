@@ -1,0 +1,3 @@
+[submodule "get-it-done"]
+	path = get-it-done
+	url = http://githut.com/LaunchCodeEducation/get-it-done.git
