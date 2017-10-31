@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Log in to Post a Blog</h1>
+<p>If you don't have an account, you may enter one <a href= "/signup"> here</a></p>
+<form action="/login" method="post">
+    <table>
+        <tr>
+            <td><label for="username">User Name</label></td>
+            <td>
+                <input name="username" type="username" value="{{username}}">
+                <p class = "error" style = "display:inline-block;">{{user_error}}</p>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="password">Password</label></td>
+            <td>
+                <input name="password" type="password">
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Login">
+</form>
+{% endblock %}
