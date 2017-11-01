@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for blog in single_user_blogs %}
+    <form action="/blog?id={0}" method = 'get'>
+    <h1>{{blog_title}}</h1>
+
+    <p>{{blog_entry}}</p>
+
+    <form action="/blog?owner={0}" method = 'get'>
+    <h5>{{owner}}</h5>
+
+    </form>
+{ % endfor %}
+{% endblock %}

@@ -15,9 +15,13 @@
          
         <a href = "/blog?id={{blog.id}}">{{blog.blog_title}}</a>
     </h2> 
-        <form method = "POST" action = "/show_individual_blog">
+        <form method = "get">
         <h3>{{blog.blog_entry}}</h3>
-        <input type = "hidden" name = "blog-id" value = "{{blog.id}}"/>
+     
+    <h5>
+        <form method = "get">
+        <p>written by <a href  = "/blog?user={{blog.owner.username}}">{{blog.owner.username}}</a></p>
+    </h5>
     </li> 
     </ul>
     </form>

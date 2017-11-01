@@ -1,15 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="/show_individual_blog?blog_id={0}" method = 'get'>
+<form action="/show_individual_blog?id={0}" method = 'get'>
 <h1>{{blog_title}}</h1>
 
 <p>{{blog_entry}}</p>
-
-<form action="/blog?user={0}" method = 'get'>
-<h5>{{owner}}</h5>
-
 </form>
+{#<p><a href = "/blog">{{owner}}</a></p> #}
+<p>written by <a href  = "/blog?user={{blog.owner.username}}">{{blog.owner.username}}</a></p>
+
 
 {% endblock %}
 

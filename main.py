@@ -120,71 +120,57 @@ def signup():
             return redirect('/signup')
     return render_template('signup.html', username=username, password=password, verify=verify)
 
+
+#log user out of session
 @app.route('/logout')
 def logout():
     del session['username']
     return redirect('/blog')
 
+#List all blog users on the "Home" button
 @app.route('/')
 def index():
-#    if request.method == 'POST':
-#        username = request.form['username']   
-    user_id = request.args.get('id')
-    if user_id:
-        blog = Blog.query.get(user_id)
-        blog_title = blog.blog_title
-        blog_entry = blog.blog_entry
-        return render_template('need a name for this page.html', username=username, blog_title = blog_title, blog_entry=blog_entry)
-
     users = User.query.all()
     return render_template('index.html', users=users)    
-
-
+#with /blog page user sees a list of blogs by all users
+# somewhere in /blog, want to show the posts of a single blogger by sending to singleUser.html
+#A get request with a user query parameter will be on this page
 @app.route('/blog', methods = ['POST', 'GET'])
 def list_blogs():
-    if request.method == 'POST':
-        blog_title = request.form['blog_title']
-        blog_entry = request.form['blog_entry']
+    blog_title = ''
+    blog_entry = ''
+    blog_id = request.args.get('user.id')
+ #   if request.method == 'POST':
+ #       blog_title = request.form['blog_title']
+ #       blog_entry = request.form['blog_entry']
 
-    blog_id = request.args.get('id')
     if blog_id:
         blog = Blog.query.get(blog_id)
         blog_title = blog.blog_title
         blog_entry = blog.blog_entry
-        return render_template('show_individual_blog.html', blog_title = blog_title, blog_entry=blog_entry)
-
+        owner = blog.owner_id
+        single_user_blogs = Blog.query.filter_by(owner = owner)
+        return render_template('singleUser.html', single_user_blogs=single_user_blogs)
+  
     blogs = Blog.query.all()
+  
  #   blog_id = blog.blog.id
-    return render_template('blog.html', blogs=blogs)#thought I have is to add blog_id= blog_id
+    return render_template('blog.html', blogs=blogs)
 
 
 #go to separate page that showcases an individual posting, one the user has selected from 
 #the main page by clicking the blog title link
-#I have blog_id = {blog_id} in hopes that it's converting between the varying id number's in blog db
-@app.route('/show_individual_blog', methods = ['get'])
-def display_blog():
-    blog_title = ''
-    blog_entry = ''
-    blog_id = request.args.get('id')
-    if blog_id:
-        blog = Blog.query.get(blog_id)
-        blog_title = blog.blog_title
-        blog_entry = blog.blog_entry
-        return render_template('show_individual_blog.html', blog_title = blog_title, blog_entry=blog_entry)
-    else:
-        blog_id = request.args.get('id')
-        blog = Blog.query.get(blog_id)
-        blog_title = blog.blog_title
-        blog_entry = blog.blog_entry
-        return render_template('show_individual_blog.html, blog_title=blog_title, blog_entry=blog_entry')
-    #blog_url= request.args.get('blog_url')
-    #blog = Blog.query.get(blog_id)
-    #blogged_id = blog.id
-    #blog_title = blog.blog_title
-    #blog_entry = blog.blog_entry
-
-    return render_template('show_individual_blog.html', blog_title=blog_title, blog_entry=blog_entry, blogged_id=blogged_id)
-
+#@app.route('/show_individual_blog', methods = ['get','post'])
+#def display_blog():
+#    blog_title = ''
+ #   blog_entry = ''
+ #   blog_id = request.args.get('id')
+ #   if blog_id:
+ #       blog = Blog.query.get(blog_id)
+  #      blog_title = blog.blog_title
+  #      blog_entry = blog.blog_entry
+  #      owner = blog.owner_id
+  #      return render_template('show_individual_blog.html', blog_title = blog_title, blog_entry=blog_entry,blog = blog, owner=owner)
   
 @app.route('/newpost', methods = ['POST', 'GET'])
 def make_entry():
@@ -220,11 +206,8 @@ def make_entry():
             db.session.commit()
 #here, I am grabbing the id number from the /newpost form with name = blog-id.  Is this a good idea? It's similar to get it done
 #otherwise, it is possible to get it from the db. Well, I did change it to grab from the db(I think)
-            blog_id = Blog.query.filter_by(blog_title=blog_title).first()
-        
- #           blog_id = int(request.form['blog-id'])
-        
-            return redirect('/show_individual_blog?id={0}'.format(blog.id))
+            blog_id = Blog.query.filter_by(blog_title=blog_title).first()     
+            return redirect('/blog?id={0}'.format(blog.id))
         else:
             return render_template('newpost.html', blog_title_error = blog_title_error, blog_entry_error=blog_entry_error, blog_title=blog_title, blog_entry=blog_entry)
                 
