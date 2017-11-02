@@ -87,23 +87,23 @@ def signup():
 
             if left_blank(username):
                 flash('Must enter username')
-                return redirect('/signup')
+            #    return redirect('/signup')
 
             if left_blank(password):
                 flash('Must enter a password')
-                return redirect('/signup')
+             #   return redirect('/signup')
                 
             if left_blank(verify):
                 flash('Must verify passoword')
-                return redirect('/signup')
+             #   return redirect('/signup')
 
             if len(password) < 3:
-                flash('Password is too short, must to more than 3 characters')
-                return redirect('/signup')
+                flash('Password is too short, must have more than 3 characters')
+            #    return redirect('/signup')
 
             if len(username) < 3:
                 flash('Username must have 4 or more characters')
-                return redirect('/signup')
+            #    return redirect('/signup')
 
             if not password == verify:
                 flash('Passwords do not match')
@@ -131,6 +131,7 @@ def logout():
 @app.route('/')
 def index():
     users = User.query.all()
+ #   print (users) gives [<User 1> <User 2>] etc
     return render_template('index.html', users=users)    
 #with /blog page user sees a list of blogs by all users
 # somewhere in /blog, want to show the posts of a single blogger by sending to singleUser.html
@@ -139,38 +140,43 @@ def index():
 def list_blogs():
     blog_title = ''
     blog_entry = ''
-    blog_id = request.args.get('user.id')
+    
+    username = request.args.get('user')# this returns amhum (for an example)
+    owner = User.query.filter_by(username = username).first()
+    blogs = Blog.query.filter_by(owner=owner).all()
+#    author_blog = User.query.filter_by(username=author)
  #   if request.method == 'POST':
  #       blog_title = request.form['blog_title']
  #       blog_entry = request.form['blog_entry']
+ #   owner = User.query.filter_by(username = username)
+    if username:
+        return render_template('singleUser.html', blogs=blogs, username=username, owner=owner)
+    else:
+        blogs = Blog.query.all()
+        return render_template('blog.html', blogs=blogs)
+ #       blog_title = blog.blog_title
+  #      blog_entry= blog.blog_entry
+   #     owner = blog.owner_id
+    #    ublogs = Blog.query.filter_by(owner=owner).all()
+    #    return render_template('singleUser.html', blog_title=blog_title, blog_entry=blog_entry, owner=owner)
+ #   else:
+  #      blogs = Blog.query.all()
+   #     return render_template('blog.html', blogs=blogs)
 
+
+#go to separate page that showcases an individual posting, one the user has selected from 
+#the main page by clicking the blog title link
+@app.route('/show_individual_blog', methods = ['get','post'])
+def display_blog():
+    blog_title = ''
+    blog_entry = ''
+    blog_id = request.args.get('id')
     if blog_id:
         blog = Blog.query.get(blog_id)
         blog_title = blog.blog_title
         blog_entry = blog.blog_entry
         owner = blog.owner_id
-        single_user_blogs = Blog.query.filter_by(owner = owner)
-        return render_template('singleUser.html', single_user_blogs=single_user_blogs)
-  
-    blogs = Blog.query.all()
-  
- #   blog_id = blog.blog.id
-    return render_template('blog.html', blogs=blogs)
-
-
-#go to separate page that showcases an individual posting, one the user has selected from 
-#the main page by clicking the blog title link
-#@app.route('/show_individual_blog', methods = ['get','post'])
-#def display_blog():
-#    blog_title = ''
- #   blog_entry = ''
- #   blog_id = request.args.get('id')
- #   if blog_id:
- #       blog = Blog.query.get(blog_id)
-  #      blog_title = blog.blog_title
-  #      blog_entry = blog.blog_entry
-  #      owner = blog.owner_id
-  #      return render_template('show_individual_blog.html', blog_title = blog_title, blog_entry=blog_entry,blog = blog, owner=owner)
+        return render_template('show_individual_blog.html', blog_title = blog_title, blog_entry=blog_entry,blog = blog, owner=owner)
   
 @app.route('/newpost', methods = ['POST', 'GET'])
 def make_entry():
@@ -204,13 +210,18 @@ def make_entry():
             blog = Blog(blog_title, blog_entry, owner)
             db.session.add(blog)
             db.session.commit()
+            blog_title = blog.blog_title
+            blog_entry = blog.blog_entry
 #here, I am grabbing the id number from the /newpost form with name = blog-id.  Is this a good idea? It's similar to get it done
 #otherwise, it is possible to get it from the db. Well, I did change it to grab from the db(I think)
-            blog_id = Blog.query.filter_by(blog_title=blog_title).first()     
-            return redirect('/blog?id={0}'.format(blog.id))
+ #           blog_id = Blog.query.filter_by(blog_title=blog_title).first()     
+            return render_template('show_individual_blog.html', blog=blog, blog_title = blog_title, blog_entry=blog_entry)#.format(blog.id))
         else:
             return render_template('newpost.html', blog_title_error = blog_title_error, blog_entry_error=blog_entry_error, blog_title=blog_title, blog_entry=blog_entry)
-                
+
+
+
+               
 if __name__=='__main__':
     app.run()
 

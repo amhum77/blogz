@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% for blog in single_user_blogs %}
-    <form action="/blog?id={0}" method = 'get'>
-    <h1>{{blog_title}}</h1>
+{% for blog in blogs %}
+    <form action="/blog?id={0}.format(blog.id)" method = 'get'>
+    <h1>{{blog.blog_title}}</h1>
 
-    <p>{{blog_entry}}</p>
-
+    <p>{{blog.blog_entry}}</p>
+    
+    <p>written by <a href  = "/blog?user={{blog.owner.username}}">{{blog.owner.username}}</a></p>
     <form action="/blog?owner={0}" method = 'get'>
-    <h5>{{owner}}</h5>
 
     </form>
-{ % endfor %}
+{% endfor %}
 {% endblock %}
+
+    

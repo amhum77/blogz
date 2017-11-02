@@ -11,9 +11,9 @@
     {% for blog in blogs %}
     <li>
     <h2>
-        <form method = "get" action = "/?blog_id={0}.format(blog.id)" name="blog_url">     
+        <form method = "get" action = "/?id={0}.format(blog.id)" value="/?blog_id={0}">     
          
-        <a href = "/blog?id={{blog.id}}">{{blog.blog_title}}</a>
+        <a href = "/show_individual_blog?id={{blog.id}}">{{blog.blog_title}}</a>
     </h2> 
         <form method = "get">
         <h3>{{blog.blog_entry}}</h3>
@@ -25,5 +25,5 @@
     </li> 
     </ul>
     </form>
-    {% endfor %}         
-{% endblock %}
+    {% endfor %}      
+{% endblock %}"
