@@ -1,41 +1,7 @@
-from flask import Flask, request, redirect, render_template, session, flash
-#flask_sqlalchemy pulls in the SQLAlchemy
-#Sqlalchemy is a sql toolkit and object relational mapper
-#turns python objects into relational objects in a database
-from flask_sqlalchemy import SQLAlchemy
+from app import app, db, request, redirect, render_template, session, flash
+from models import User 
+from models import Blog
 
-app = Flask(__name__)
-app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://blogz:blogz@localhost:8889/blogz'
-#configure object relational mapping and debugging
-app.config['SQLALCHEMY_ECHO']=True
-#ties SQLconstuctor whith flask application passed to it, which now create database object to use in main.py
-db = SQLAlchemy(app)
-app.secret_key= "super secret key"
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    blogs = db.relationship('Blog', backref='owner')
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-
-#persistent class to handle data, rather than using a list, ie Blog[] 
-class Blog(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    blog_title = db.Column(db.String(100))
-    blog_entry = db.Column(db.String(500))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-#provide a constructor(a class that can be stored in the database), takes the user created database item (my case blog_entry)
-    def __init__(self, blog_title, blog_entry, owner):
-        self.blog_title = blog_title
-        self.blog_entry = blog_entry
-        self.owner = owner
 
 @app.before_request
 def require_login():
@@ -64,6 +30,7 @@ def login():
             flash('Password is incorrect')
                   
     return render_template('login.html')
+
 
 @app.route('/signup', methods=['POST','GET'])
 def signup():
@@ -131,7 +98,6 @@ def logout():
 @app.route('/')
 def index():
     users = User.query.all()
- #   print (users) gives [<User 1> <User 2>] etc
     return render_template('index.html', users=users)    
 #with /blog page user sees a list of blogs by all users
 # somewhere in /blog, want to show the posts of a single blogger by sending to singleUser.html
@@ -144,25 +110,12 @@ def list_blogs():
     username = request.args.get('user')# this returns amhum (for an example)
     owner = User.query.filter_by(username = username).first()
     blogs = Blog.query.filter_by(owner=owner).all()
-#    author_blog = User.query.filter_by(username=author)
- #   if request.method == 'POST':
- #       blog_title = request.form['blog_title']
- #       blog_entry = request.form['blog_entry']
- #   owner = User.query.filter_by(username = username)
+
     if username:
         return render_template('singleUser.html', blogs=blogs, username=username, owner=owner)
     else:
         blogs = Blog.query.all()
         return render_template('blog.html', blogs=blogs)
- #       blog_title = blog.blog_title
-  #      blog_entry= blog.blog_entry
-   #     owner = blog.owner_id
-    #    ublogs = Blog.query.filter_by(owner=owner).all()
-    #    return render_template('singleUser.html', blog_title=blog_title, blog_entry=blog_entry, owner=owner)
- #   else:
-  #      blogs = Blog.query.all()
-   #     return render_template('blog.html', blogs=blogs)
-
 
 #go to separate page that showcases an individual posting, one the user has selected from 
 #the main page by clicking the blog title link
@@ -190,8 +143,7 @@ def make_entry():
 
 #the following get request gets the newpost form
     if request.method == 'GET':
-#        blog_title = request.args.get('blog_title')
-#        blog_entry = request.args.get('blog_entry')
+
         return render_template('newpost.html')
 # the rest of this grabs the submitted information and processes it.    
     if request.method == 'POST': 
